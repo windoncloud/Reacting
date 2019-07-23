@@ -1,4 +1,4 @@
- import React, {Component, createContext, lazy, Suspense, PureComponent, memo} from 'react';
+ import React, {Component, createContext, lazy, Suspense, PureComponent, memo, useState, useEffect} from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -192,4 +192,55 @@ class App extends Component{
 
 // export default App;
 // export default Leaf; // suspens lazy
-export default App2; // pureComponent and memo
+// export default App2; // pureComponent and memo
+export default App3; // hooks
+
+ // hooks 类组件不足
+ // THIS指向困扰
+ // 内联函数过度创建新句柄
+ // 类成员函数不能保证this
+
+// function Bar() {
+//     const size = useSize()
+//     useEffect(() => {
+//         document.title = size.join("x")
+//     })
+//
+//     return (
+//     <div>
+//         {size.width}x{size.height}
+//     </div>
+//     )
+// }
+ let id = 0
+ function App3(props) {
+     console.log('props', props)
+     const defaultCount = props.defaultCount || 0
+
+     const [count, setCount] = useState(() => {
+         console.log('initial count') // only once
+         return props.defaultCount || 0
+     })
+     // const [count, setCount] = useState(0)
+     const [name, setName] = useState('Mike')
+
+     // let name, setName;
+     // let count, setCount;
+     //
+     // id +=1
+     // if (id & 1) {
+     //     [count, setCount] = useState(0)
+     //     [name, setName] = useState('Mike')
+     // } else {
+     //     [name, setName] = useState('Mike')
+     //     [count, setCount] = useState(0)
+     // }
+     console.log('count', count)
+     console.log('setCount', setCount)
+     return (
+         <button type="button" onClick={() => {setCount(count + 1)}}>
+             Click ({count}), name ({name})
+         </button>
+     )
+ }
+ // eslint-plugin-react-hooks
