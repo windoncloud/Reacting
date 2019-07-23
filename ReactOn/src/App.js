@@ -128,5 +128,68 @@ class App extends Component{
     }
 }
 
+
+ // class Foo extends Component {
+ // class Foo extends PureComponent {
+ //     // shouldComponentUpdate(nextProps, nextState) {
+ //     //     if (nextProps.name === this.props.name) {
+ //     //         return false
+ //     //     }
+ //     //     return true
+ //     // }
+ //     render() {
+ //         console.log('Foo render')
+ //         return (
+ //             <div>
+ //                 Foo
+ //                 {this.props.person.age}
+ //             </div>
+ //         );
+ //     }
+ // }
+
+ // function Foo(props) {
+ //    console.log('Foo Render')
+ //    return <div>{props.person.age}</div>
+ // }
+
+ const Foo = memo(function Foo(props) {
+     console.log('Foo Render')
+     return <div>{props.person.age}</div>
+ })
+
+
+ class App2 extends Component {
+    state = {
+        count: 0,
+        person: {
+            age: 1
+        }
+    }
+     // callBack() {
+     //    // this 指向不能保证
+     // }
+     callBack = () => {
+
+     }
+     render() {
+         const person = this.state.person
+         return (
+             <div>
+                {/*<button type="button" onClick={() => this.setState({count: this.state.count+1})}>Add</button>*/}
+                <button type="button" onClick={() => {
+                    person.age ++
+                    this.setState({person})
+                }}>Add</button>
+                {/*<Foo name="Mike" />*/}
+                {/*<Foo person={person} />*/}
+                {/*<Foo person={person} cb={()=>{}} />*/}
+                <Foo person={person} cb={this.callBack} />
+             </div>
+        );
+     }
+ }
+
 // export default App;
-export default Leaf;
+// export default Leaf; // suspens lazy
+export default App2; // pureComponent and memo
