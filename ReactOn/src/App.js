@@ -1,4 +1,4 @@
- import React, {Component, createContext, lazy, Suspense, PureComponent, memo, useState, useEffect} from 'react';
+ import React, {Component, createContext, lazy, Suspense, PureComponent, memo, useState, useEffect, useRef, useCallback} from 'react';
 import logo from './logo.svg';
 import './App.css';
 
@@ -193,7 +193,8 @@ class App extends Component{
 // export default App;
 // export default Leaf; // suspens lazy
 // export default App2; // pureComponent and memo
-export default App3; // hooks
+// export default App3; // hooks
+export default TodoList; // redux
 
  // hooks 类组件不足
  // THIS指向困扰
@@ -244,3 +245,133 @@ export default App3; // hooks
      )
  }
  // eslint-plugin-react-hooks
+
+ let idSeq = Date.now()
+ function Control(props) {
+     const inputRef = useRef()
+     const { addTodo } = props
+     const onSubmit = (e) => {
+         e.preventDefault()
+         const newText = inputRef.current.value.trim()
+         if (newText.length === 0) {
+             return
+         }
+         addTodo({
+             id: ++idSeq,
+             text: newText,
+             complete: false
+         })
+         inputRef.current.value = ''
+     }
+     return (
+         <div className="control">
+             <h1>
+                 todos
+             </h1>
+             <form onSubmit={onSubmit}>
+                 <input type="text"
+                        className="new-todo"
+                        placeholder="what needs to be done?"
+                        ref={inputRef}
+                 />
+             </form>
+         </div>
+     )
+ }
+ function TodoItem(props) {
+     const {
+         todo: {
+             id,
+             text,
+             complete
+         },
+         toggleTodo,
+         removeTodo
+     } = props
+     const onChange = () => {
+         toggleTodo(id)
+     }
+     const onRemove = () => {
+         removeTodo(id)
+     }
+     return (
+         <li className="todo-item">
+             <input type="checkbox" onChange={onChange} checked={complete}/>
+             <label htmlFor="" className={complete ? 'complete' : ''}>{text}</label>
+             <button onClick={onRemove}>&#xd7;</button>
+         </li>
+     )
+ }
+ function Todos(props) {
+     const { todos, toggleTodo, removeTodo } = props
+     return (
+         <ul>
+             {
+                 todos.map(todo => {
+                     return (
+                         <TodoItem
+                            key={todo.id}
+                            todo={todo}
+                            toggleTodo={toggleTodo}
+                            removeTodo={removeTodo}
+                         >
+
+                         </TodoItem>
+                     )
+                 })
+             }
+         </ul>
+     )
+ }
+
+ const LS_KEY = '$-todos_'
+ function TodoList() {
+     const [todos, setTodos] = useState([])
+
+     const addTodo = useCallback((todo) => {
+         setTodos(todos => [...todos, todo])
+     }, [])
+
+     const removeTodo = useCallback((id) => {
+         setTodos(todos => todos.filter(todo => {
+             return todo.id !== id
+         }))
+     }, [])
+
+     const toggleTodo = useCallback((id) => {
+         setTodos(todos => todos.map(todo => {
+             return todo.id === id
+             ? {
+                 ...todo,
+                 complete: !todo.complete
+             }
+             : todo;
+         }))
+     }, [])
+
+     useEffect(() => {
+         const todos = JSON.parse(localStorage.getItem(LS_KEY)) || []
+         setTodos(todos)
+     }, [])
+     // }, [todos]) // forever loop with storage
+
+    useEffect(() => {
+        localStorage.setItem(LS_KEY, JSON.stringify(todos))
+    }, [todos])
+
+     return(
+         <div className="todo-list">
+             <Control addTodo={addTodo} />
+             <Todos removeTodo={removeTodo} toggleTodo={toggleTodo} todos={todos}/>
+         </div>
+     )
+ }
+ class App4 extends Component {
+     render() {
+         return (
+             <div>
+                 
+             </div>
+         );
+     }
+ }
